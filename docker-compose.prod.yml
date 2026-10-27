@@ -1,0 +1,66 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: coffee-pos-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD wajib diisi di .env}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:?MYSQL_DATABASE wajib diisi di .env}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - coffee-pos-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: coffee-pos-redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD wajib diisi di .env}
+    environment:
+      # Dibutuhkan healthcheck: $$REDIS_PASSWORD dibaca dari environment container
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      # redis-cli tetap exit 0 walau password salah, jadi cek balasan PONG secara eksplisit
+      test: "redis-cli -a $$REDIS_PASSWORD --no-auth-warning ping | grep -q PONG"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - coffee-pos-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: coffee-pos-app
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:8080"
+    env_file: .env
+    environment:
+      # Di dalam network Docker, host database dan Redis adalah nama service, bukan localhost
+      DB_HOST: mysql
+      REDIS_HOST: redis
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - coffee-pos-network
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  coffee-pos-network:
+    driver: bridge
