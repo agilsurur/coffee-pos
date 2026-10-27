@@ -1,0 +1,16 @@
+.env
+vendor/
+*.exe
+tmp/
+
+# OS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+
+# Build & test output
+bin/
+*.test
+coverage.out

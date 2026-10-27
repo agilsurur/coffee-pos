@@ -1,0 +1,3237 @@
+{
+  "info": {
+    "_postman_id": "3a30f8cb-ae65-4d7f-96e4-6235f887234a",
+    "name": "Coffee Shop POS",
+    "description": "Skeleton request untuk semua endpoint di API_CONTRACT.md. Jalankan Auth > Login dulu; token disimpan otomatis ke variable environment `token`. Request Create menyimpan id hasilnya ke collection variable (category_id, product_id, dst.).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"kasir.budi\",\n  \"password\": \"rahasia123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Public. Token dari response otomatis disimpan ke variable environment `token`."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data && res.data.access_token) {",
+                  "  pm.environment.set(\"token\", res.data.access_token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Owner, Cashier. Mengakhiri semua sesi user ini."
+          },
+          "response": []
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            },
+            "description": "Owner, Cashier."
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_password\": \"rahasia123\",\n  \"new_password\": \"rahasiaBaru456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Owner, Cashier. Token baru otomatis disimpan ke `token`."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data && res.data.access_token) {",
+                  "  pm.environment.set(\"token\", res.data.access_token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "List Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/categories",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categories"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "ACTIVE",
+                  "disabled": true,
+                  "description": "ACTIVE | INACTIVE (khusus Owner)"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Cari berdasarkan nama"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true,
+                  "description": "Default 1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20",
+                  "disabled": true,
+                  "description": "Default 20, maks. 100"
+                }
+              ]
+            },
+            "description": "Owner, Cashier. Cashier hanya menerima kategori aktif."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Category",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/categories/{{category_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categories",
+                "{{category_id}}"
+              ]
+            },
+            "description": "Owner."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/categories",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categories"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Non-Kopi\",\n  \"sort_order\": 2,\n  \"status\": \"ACTIVE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Owner."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data && res.data.id) { pm.collectionVariables.set(\"category_id\", res.data.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/categories/{{category_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categories",
+                "{{category_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Non-Kopi\",\n  \"sort_order\": 2,\n  \"status\": \"ACTIVE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Owner."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/categories/{{category_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categories",
+                "{{category_id}}"
+              ]
+            },
+            "description": "Owner. Soft delete."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "List Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/products",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Cari di nama dan SKU"
+                },
+                {
+                  "key": "category_id",
+                  "value": "{{category_id}}",
+                  "disabled": true,
+                  "description": "UUID"
+                },
+                {
+                  "key": "status",
+                  "value": "ACTIVE",
+                  "disabled": true,
+                  "description": "ACTIVE | INACTIVE (khusus Owner)"
+                },
+                {
+                  "key": "track_stock",
+                  "value": "true",
+                  "disabled": true,
+                  "description": "bool"
+                },
+                {
+                  "key": "low_stock",
+                  "value": "true",
+                  "disabled": true,
+                  "description": "bool (khusus Owner)"
+                },
+                {
+                  "key": "deleted",
+                  "value": "true",
+                  "disabled": true,
+                  "description": "bool, hanya produk terhapus (khusus Owner)"
+                },
+                {
+                  "key": "sort",
+                  "value": "name",
+                  "disabled": true,
+                  "description": "name | -name | price | -price | created_at | -created_at"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true,
+                  "description": "Default 1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20",
+                  "disabled": true,
+                  "description": "Default 20, maks. 100"
+                }
+              ]
+            },
+            "description": "Owner, Cashier. Cashier hanya menerima produk aktif."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/products/{{product_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "{{product_id}}"
+              ]
+            },
+            "description": "Owner, Cashier."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/products",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category_id\": \"{{category_id}}\",\n  \"sku\": \"KUE-003\",\n  \"name\": \"Croissant Butter\",\n  \"description\": null,\n  \"price\": 2800000,\n  \"status\": \"ACTIVE\",\n  \"track_stock\": true,\n  \"initial_stock\": 20,\n  \"min_stock\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Owner. Harga dalam sen."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data && res.data.id) { pm.collectionVariables.set(\"product_id\", res.data.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/products/{{product_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "{{product_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category_id\": \"{{category_id}}\",\n  \"sku\": \"KUE-003\",\n  \"name\": \"Croissant Butter\",\n  \"description\": null,\n  \"price\": 2800000,\n  \"status\": \"ACTIVE\",\n  \"track_stock\": true,\n  \"min_stock\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Owner. Tanpa initial_stock; stok diubah lewat Stock."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Product Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/products/{{product_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "{{product_id}}",
+                "status"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"INACTIVE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Owner."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/products/{{product_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "{{product_id}}"
+              ]
+            },
+            "description": "Owner. Soft delete."
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Product Photo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/products/{{product_id}}/photo",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "{{product_id}}",
+                "photo"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "photo",
+                  "type": "file",
+                  "src": [],
+                  "description": "JPG/PNG/WebP, maks. 2 MB"
+                }
+              ]
+            },
+            "description": "Owner. multipart/form-data. Pilih file di tab Body sebelum mengirim."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Product Photo",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/products/{{product_id}}/photo",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "{{product_id}}",
+                "photo"
+              ]
+            },
+            "description": "Owner."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Stock",
+      "item": [
+        {
+          "name": "Create Stock Movement - IN",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/stock/movements",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "stock",
+                "movements"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"movement_type\": \"IN\",\n  \"quantity\": 24,\n  \"note\": \"Kiriman pagi\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Owner."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Stock Movement - WASTE",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/stock/movements",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "stock",
+                "movements"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"movement_type\": \"WASTE\",\n  \"quantity\": 3,\n  \"note\": \"Kedaluwarsa\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Owner. note wajib."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Stock Movement - ADJUSTMENT",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/stock/movements",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "stock",
+                "movements"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"movement_type\": \"ADJUSTMENT\",\n  \"actual_stock\": 15,\n  \"note\": \"Opname akhir minggu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Owner. actual_stock = hasil hitung fisik; note wajib."
+          },
+          "response": []
+        },
+        {
+          "name": "List Stock Movements",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/stock/movements",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "stock",
+                "movements"
+              ],
+              "query": [
+                {
+                  "key": "product_id",
+                  "value": "{{product_id}}",
+                  "disabled": true,
+                  "description": "UUID"
+                },
+                {
+                  "key": "movement_type",
+                  "value": "IN,WASTE",
+                  "disabled": true,
+                  "description": "Boleh lebih dari satu, dipisah koma"
+                },
+                {
+                  "key": "start_date",
+                  "value": "2026-10-01",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2026-10-27",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true,
+                  "description": "Default 1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20",
+                  "disabled": true,
+                  "description": "Default 20, maks. 100"
+                }
+              ]
+            },
+            "description": "Owner."
+          },
+          "response": []
+        },
+        {
+          "name": "Stock Alerts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/stock/alerts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "stock",
+                "alerts"
+              ]
+            },
+            "description": "Owner. Stok menipis dan oversold."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Tables",
+      "item": [
+        {
+          "name": "List Tables",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/tables",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tables"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "ACTIVE",
+                  "disabled": true,
+                  "description": "ACTIVE | INACTIVE (khusus Owner)"
+                },
+                {
+                  "key": "occupancy_status",
+                  "value": "AVAILABLE",
+                  "disabled": true,
+                  "description": "AVAILABLE | OCCUPIED"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true,
+                  "description": "Default 1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20",
+                  "disabled": true,
+                  "description": "Default 20, maks. 100"
+                }
+              ]
+            },
+            "description": "Owner, Cashier. Cashier hanya menerima meja aktif."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Table",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/tables/{{table_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tables",
+                "{{table_id}}"
+              ]
+            },
+            "description": "Owner."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Table",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/tables",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tables"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"table_number\": \"B3\",\n  \"capacity\": 2,\n  \"status\": \"ACTIVE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Owner."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data && res.data.id) { pm.collectionVariables.set(\"table_id\", res.data.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Table",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/tables/{{table_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tables",
+                "{{table_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"table_number\": \"B3\",\n  \"capacity\": 2,\n  \"status\": \"ACTIVE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Owner."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Table Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/tables/{{table_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tables",
+                "{{table_id}}",
+                "status"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"INACTIVE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Owner."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Table",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/tables/{{table_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tables",
+                "{{table_id}}"
+              ]
+            },
+            "description": "Owner. Soft delete."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cashiers",
+      "item": [
+        {
+          "name": "List Cashiers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Nama atau username"
+                },
+                {
+                  "key": "status",
+                  "value": "ACTIVE",
+                  "disabled": true,
+                  "description": "ACTIVE | INACTIVE"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true,
+                  "description": "Default 1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20",
+                  "disabled": true,
+                  "description": "Default 20, maks. 100"
+                }
+              ]
+            },
+            "description": "Owner."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Cashier",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/{{user_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "{{user_id}}"
+              ]
+            },
+            "description": "Owner."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Cashier",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Sari Dewi\",\n  \"username\": \"kasir.sari\",\n  \"password\": \"passwordAwal1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Owner. Role selalu CASHIER."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data && res.data.id) { pm.collectionVariables.set(\"user_id\", res.data.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Cashier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/{{user_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "{{user_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Sari Dewi Lestari\",\n  \"username\": \"kasir.sari\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Owner."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Cashier Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/{{user_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "{{user_id}}",
+                "status"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"INACTIVE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Owner."
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Cashier Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/{{user_id}}/reset-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "{{user_id}}",
+                "reset-password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"new_password\": \"passwordBaru9\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Owner."
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoint /users, khusus akun Cashier."
+    },
+    {
+      "name": "Promos",
+      "item": [
+        {
+          "name": "List Promos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/promos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "promos"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "ACTIVE",
+                  "disabled": true,
+                  "description": "ACTIVE | INACTIVE"
+                },
+                {
+                  "key": "discount_type",
+                  "value": "PERCENTAGE",
+                  "disabled": true,
+                  "description": "PERCENTAGE | FIXED"
+                },
+                {
+                  "key": "currently_active",
+                  "value": "true",
+                  "disabled": true,
+                  "description": "bool"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true,
+                  "description": ""
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true,
+                  "description": "Default 1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20",
+                  "disabled": true,
+                  "description": "Default 20, maks. 100"
+                }
+              ]
+            },
+            "description": "Owner."
+          },
+          "response": []
+        },
+        {
+          "name": "List Active Promos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/promos/active",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "promos",
+                "active"
+              ],
+              "query": [
+                {
+                  "key": "subtotal",
+                  "value": "6500000",
+                  "disabled": true,
+                  "description": "Sen. Jika diisi, server menghitung eligible & estimated_discount"
+                }
+              ]
+            },
+            "description": "Owner, Cashier."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Promo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/promos/{{promo_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "promos",
+                "{{promo_id}}"
+              ]
+            },
+            "description": "Owner."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Promo - Percentage",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/promos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "promos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Happy Hour 20%\",\n  \"code\": \"HAPPY20\",\n  \"discount_type\": \"PERCENTAGE\",\n  \"discount_percent\": 20,\n  \"max_discount\": 2000000,\n  \"min_purchase\": 5000000,\n  \"starts_at\": \"2026-10-01T07:00:00Z\",\n  \"ends_at\": \"2026-12-31T16:59:59Z\",\n  \"status\": \"ACTIVE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Owner."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data && res.data.id) { pm.collectionVariables.set(\"promo_id\", res.data.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Promo - Fixed",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/promos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "promos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Potongan 10rb\",\n  \"code\": null,\n  \"discount_type\": \"FIXED\",\n  \"discount_amount\": 1000000,\n  \"min_purchase\": 7500000,\n  \"starts_at\": \"2026-11-01T00:00:00Z\",\n  \"ends_at\": \"2026-11-30T16:59:59Z\",\n  \"status\": \"ACTIVE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Owner."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data && res.data.id) { pm.collectionVariables.set(\"promo_id\", res.data.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Promo",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/promos/{{promo_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "promos",
+                "{{promo_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Happy Hour 20%\",\n  \"code\": \"HAPPY20\",\n  \"discount_type\": \"PERCENTAGE\",\n  \"discount_percent\": 20,\n  \"max_discount\": 2000000,\n  \"min_purchase\": 5000000,\n  \"starts_at\": \"2026-10-01T07:00:00Z\",\n  \"ends_at\": \"2026-12-31T16:59:59Z\",\n  \"status\": \"ACTIVE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Owner."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Promo Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/promos/{{promo_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "promos",
+                "{{promo_id}}",
+                "status"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"INACTIVE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Owner."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Promo",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/promos/{{promo_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "promos",
+                "{{promo_id}}"
+              ]
+            },
+            "description": "Owner. Soft delete, hanya untuk promo yang belum pernah dipakai."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reports/summary?period=last_30_days",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "summary"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "last_30_days",
+                  "disabled": false,
+                  "description": "today | last_7_days | last_30_days | this_month | custom"
+                },
+                {
+                  "key": "start_date",
+                  "value": "2026-10-01",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD, wajib jika period=custom"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2026-10-27",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD, wajib jika period=custom"
+                }
+              ]
+            },
+            "description": "Owner."
+          },
+          "response": []
+        },
+        {
+          "name": "Revenue",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reports/revenue?period=last_30_days&granularity=day",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "revenue"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "last_30_days",
+                  "disabled": false,
+                  "description": "today | last_7_days | last_30_days | this_month | custom"
+                },
+                {
+                  "key": "start_date",
+                  "value": "2026-10-01",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD, wajib jika period=custom"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2026-10-27",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD, wajib jika period=custom"
+                },
+                {
+                  "key": "granularity",
+                  "value": "day",
+                  "disabled": false,
+                  "description": "day | week | month"
+                }
+              ]
+            },
+            "description": "Owner."
+          },
+          "response": []
+        },
+        {
+          "name": "Top Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reports/top-products?period=last_30_days&sort_by=quantity",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "top-products"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "last_30_days",
+                  "disabled": false,
+                  "description": "today | last_7_days | last_30_days | this_month | custom"
+                },
+                {
+                  "key": "start_date",
+                  "value": "2026-10-01",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD, wajib jika period=custom"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2026-10-27",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD, wajib jika period=custom"
+                },
+                {
+                  "key": "sort_by",
+                  "value": "quantity",
+                  "disabled": false,
+                  "description": "quantity | revenue"
+                },
+                {
+                  "key": "category_id",
+                  "value": "{{category_id}}",
+                  "disabled": true,
+                  "description": "UUID"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "disabled": true,
+                  "description": "Default 10, maks. 50"
+                }
+              ]
+            },
+            "description": "Owner."
+          },
+          "response": []
+        },
+        {
+          "name": "Cashiers Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reports/cashiers?period=last_30_days",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "cashiers"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "last_30_days",
+                  "disabled": false,
+                  "description": "today | last_7_days | last_30_days | this_month | custom"
+                },
+                {
+                  "key": "start_date",
+                  "value": "2026-10-01",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD, wajib jika period=custom"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2026-10-27",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD, wajib jika period=custom"
+                }
+              ]
+            },
+            "description": "Owner."
+          },
+          "response": []
+        },
+        {
+          "name": "Export CSV - transactions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reports/export/transactions?period=last_30_days",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "export",
+                "transactions"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "last_30_days",
+                  "disabled": false,
+                  "description": "today | last_7_days | last_30_days | this_month | custom"
+                },
+                {
+                  "key": "start_date",
+                  "value": "2026-10-01",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD, wajib jika period=custom"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2026-10-27",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD, wajib jika period=custom"
+                },
+                {
+                  "key": "status",
+                  "value": "PAID",
+                  "disabled": true,
+                  "description": "Default PAID"
+                }
+              ]
+            },
+            "description": "Owner. Response berupa file CSV. Gunakan 'Send and Download' untuk menyimpan file."
+          },
+          "response": []
+        },
+        {
+          "name": "Export CSV - transaction-items",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reports/export/transaction-items?period=last_30_days",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "export",
+                "transaction-items"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "last_30_days",
+                  "disabled": false,
+                  "description": "today | last_7_days | last_30_days | this_month | custom"
+                },
+                {
+                  "key": "start_date",
+                  "value": "2026-10-01",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD, wajib jika period=custom"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2026-10-27",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD, wajib jika period=custom"
+                },
+                {
+                  "key": "status",
+                  "value": "PAID",
+                  "disabled": true,
+                  "description": "Default PAID"
+                }
+              ]
+            },
+            "description": "Owner. Response berupa file CSV. Gunakan 'Send and Download' untuk menyimpan file."
+          },
+          "response": []
+        },
+        {
+          "name": "Export CSV - products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reports/export/products?period=last_30_days",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "export",
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "last_30_days",
+                  "disabled": false,
+                  "description": "today | last_7_days | last_30_days | this_month | custom"
+                },
+                {
+                  "key": "start_date",
+                  "value": "2026-10-01",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD, wajib jika period=custom"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2026-10-27",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD, wajib jika period=custom"
+                }
+              ]
+            },
+            "description": "Owner. Response berupa file CSV. Gunakan 'Send and Download' untuk menyimpan file."
+          },
+          "response": []
+        },
+        {
+          "name": "Export CSV - cashiers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reports/export/cashiers?period=last_30_days",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "export",
+                "cashiers"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "last_30_days",
+                  "disabled": false,
+                  "description": "today | last_7_days | last_30_days | this_month | custom"
+                },
+                {
+                  "key": "start_date",
+                  "value": "2026-10-01",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD, wajib jika period=custom"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2026-10-27",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD, wajib jika period=custom"
+                }
+              ]
+            },
+            "description": "Owner. Response berupa file CSV. Gunakan 'Send and Download' untuk menyimpan file."
+          },
+          "response": []
+        },
+        {
+          "name": "Export CSV - shifts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reports/export/shifts?period=last_30_days",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "export",
+                "shifts"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "last_30_days",
+                  "disabled": false,
+                  "description": "today | last_7_days | last_30_days | this_month | custom"
+                },
+                {
+                  "key": "start_date",
+                  "value": "2026-10-01",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD, wajib jika period=custom"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2026-10-27",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD, wajib jika period=custom"
+                }
+              ]
+            },
+            "description": "Owner. Response berupa file CSV. Gunakan 'Send and Download' untuk menyimpan file."
+          },
+          "response": []
+        },
+        {
+          "name": "Export CSV - stock-movements",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reports/export/stock-movements?period=last_30_days",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "export",
+                "stock-movements"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "last_30_days",
+                  "disabled": false,
+                  "description": "today | last_7_days | last_30_days | this_month | custom"
+                },
+                {
+                  "key": "start_date",
+                  "value": "2026-10-01",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD, wajib jika period=custom"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2026-10-27",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD, wajib jika period=custom"
+                },
+                {
+                  "key": "product_id",
+                  "value": "{{product_id}}",
+                  "disabled": true,
+                  "description": "UUID"
+                },
+                {
+                  "key": "movement_type",
+                  "value": "IN,WASTE",
+                  "disabled": true,
+                  "description": "Dipisah koma"
+                }
+              ]
+            },
+            "description": "Owner. Response berupa file CSV. Gunakan 'Send and Download' untuk menyimpan file."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Shifts",
+      "item": [
+        {
+          "name": "Open Shift",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/shifts/open",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "shifts",
+                "open"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"opening_cash\": 50000000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Cashier. Modal kas awal dalam sen."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data && res.data.id) { pm.collectionVariables.set(\"shift_id\", res.data.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Current Shift",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/shifts/current",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "shifts",
+                "current"
+              ]
+            },
+            "description": "Cashier. data = null jika belum ada shift terbuka."
+          },
+          "response": []
+        },
+        {
+          "name": "Current Shift Summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/shifts/current/summary",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "shifts",
+                "current",
+                "summary"
+              ]
+            },
+            "description": "Cashier. Pratinjau rekap sebelum tutup shift."
+          },
+          "response": []
+        },
+        {
+          "name": "Close Shift",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/shifts/current/close",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "shifts",
+                "current",
+                "close"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"actual_cash\": 147500000,\n  \"closing_note\": \"Kurang 5rb, kemungkinan salah kembalian\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Cashier. closing_note wajib jika ada selisih kas."
+          },
+          "response": []
+        },
+        {
+          "name": "List Shifts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/shifts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "shifts"
+              ],
+              "query": [
+                {
+                  "key": "cashier_id",
+                  "value": "{{user_id}}",
+                  "disabled": true,
+                  "description": "UUID"
+                },
+                {
+                  "key": "status",
+                  "value": "CLOSED",
+                  "disabled": true,
+                  "description": "OPEN | CLOSED"
+                },
+                {
+                  "key": "start_date",
+                  "value": "2026-10-01",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD, berdasarkan opened_at"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2026-10-27",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true,
+                  "description": "Default 1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20",
+                  "disabled": true,
+                  "description": "Default 20, maks. 100"
+                }
+              ]
+            },
+            "description": "Owner."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Shift",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/shifts/{{shift_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "shifts",
+                "{{shift_id}}"
+              ]
+            },
+            "description": "Owner."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Create Order - Dine In",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_type\": \"DINE_IN\",\n  \"table_id\": \"{{table_id}}\",\n  \"items\": [\n    {\n      \"product_id\": \"{{product_id}}\",\n      \"quantity\": 2,\n      \"note\": \"less sugar\"\n    },\n    {\n      \"product_id\": \"{{product_id}}\",\n      \"quantity\": 1,\n      \"note\": null\n    }\n  ],\n  \"promo_id\": \"{{promo_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Cashier dengan shift terbuka. promo_id opsional (hapus atau isi null)."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data && res.data.id) { pm.collectionVariables.set(\"order_id\", res.data.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Order - Take Away",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_type\": \"TAKE_AWAY\",\n  \"table_id\": null,\n  \"items\": [\n    {\n      \"product_id\": \"{{product_id}}\",\n      \"quantity\": 1,\n      \"note\": null\n    }\n  ],\n  \"promo_id\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Cashier dengan shift terbuka."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data && res.data.id) { pm.collectionVariables.set(\"order_id\", res.data.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "PENDING,FAILED",
+                  "disabled": true,
+                  "description": "Boleh lebih dari satu, dipisah koma"
+                },
+                {
+                  "key": "order_type",
+                  "value": "DINE_IN",
+                  "disabled": true,
+                  "description": "DINE_IN | TAKE_AWAY"
+                },
+                {
+                  "key": "table_id",
+                  "value": "{{table_id}}",
+                  "disabled": true,
+                  "description": "UUID"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true,
+                  "description": "transaction_number"
+                },
+                {
+                  "key": "cashier_id",
+                  "value": "{{user_id}}",
+                  "disabled": true,
+                  "description": "Khusus Owner"
+                },
+                {
+                  "key": "shift_id",
+                  "value": "{{shift_id}}",
+                  "disabled": true,
+                  "description": "Khusus Owner"
+                },
+                {
+                  "key": "start_date",
+                  "value": "2026-10-01",
+                  "disabled": true,
+                  "description": "Khusus Owner"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2026-10-27",
+                  "disabled": true,
+                  "description": "Khusus Owner"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true,
+                  "description": "Default 1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20",
+                  "disabled": true,
+                  "description": "Default 20, maks. 100"
+                }
+              ]
+            },
+            "description": "Owner, Cashier. Cashier hanya melihat order shift terbukanya."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Order",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/{{order_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders",
+                "{{order_id}}"
+              ]
+            },
+            "description": "Owner, Cashier."
+          },
+          "response": []
+        },
+        {
+          "name": "Replace Order Items",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/{{order_id}}/items",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders",
+                "{{order_id}}",
+                "items"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"product_id\": \"{{product_id}}\",\n      \"quantity\": 3,\n      \"note\": \"less sugar\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Cashier. Hanya sebelum checkout."
+          },
+          "response": []
+        },
+        {
+          "name": "Apply Promo",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/{{order_id}}/promo",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders",
+                "{{order_id}}",
+                "promo"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"promo_id\": \"{{promo_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Cashier. Mengganti promo yang sudah terpasang."
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Promo",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/{{order_id}}/promo",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders",
+                "{{order_id}}",
+                "promo"
+              ]
+            },
+            "description": "Cashier."
+          },
+          "response": []
+        },
+        {
+          "name": "Checkout - Midtrans",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/{{order_id}}/checkout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders",
+                "{{order_id}}",
+                "checkout"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"payment_method\": \"MIDTRANS\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Cashier. Mengunci order dan mengembalikan snap_token."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data && res.data.payment) { pm.collectionVariables.set(\"payment_id\", res.data.payment.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Checkout - Cash",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/{{order_id}}/checkout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders",
+                "{{order_id}}",
+                "checkout"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"payment_method\": \"CASH\",\n  \"cash_received\": 7000000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Cashier. Order langsung PAID."
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/{{order_id}}/cancel",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders",
+                "{{order_id}}",
+                "cancel"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Pelanggan ingin mengubah pesanan\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Cashier."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "List Order Payments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/{{order_id}}/payments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders",
+                "{{order_id}}",
+                "payments"
+              ]
+            },
+            "description": "Owner, Cashier pemilik order."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Payment Attempt",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/{{order_id}}/payments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders",
+                "{{order_id}}",
+                "payments"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"payment_method\": \"MIDTRANS\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Cashier. Retry atau ganti metode untuk order yang sudah checkout. Untuk tunai: {\"payment_method\": \"CASH\", \"cash_received\": 7000000}."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data && res.data.payment) { pm.collectionVariables.set(\"payment_id\", res.data.payment.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sync Payment Status",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/payments/{{payment_id}}/sync",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "{{payment_id}}",
+                "sync"
+              ]
+            },
+            "description": "Cashier. Menanyakan status terbaru ke Midtrans."
+          },
+          "response": []
+        },
+        {
+          "name": "Midtrans Notification (Webhook)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/payments/midtrans/notification",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "midtrans",
+                "notification"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transaction_time\": \"2026-10-27 11:05:10\",\n  \"transaction_status\": \"settlement\",\n  \"transaction_id\": \"9aed5972-5b6a-401e-894b-a32c91ed1a3a\",\n  \"status_message\": \"midtrans payment notification\",\n  \"status_code\": \"200\",\n  \"signature_key\": \"d1c2b3a4...\",\n  \"settlement_time\": \"2026-10-27 11:05:12\",\n  \"payment_type\": \"qris\",\n  \"order_id\": \"TRX-20261027-0012-1\",\n  \"merchant_id\": \"G123456789\",\n  \"gross_amount\": \"62400.00\",\n  \"fraud_status\": \"accept\",\n  \"currency\": \"IDR\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Public (dipanggil Midtrans). signature_key harus SHA512(order_id + status_code + gross_amount + server_key) agar tidak ditolak 401."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "category_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "product_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "table_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "promo_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "shift_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "order_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "payment_id",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
